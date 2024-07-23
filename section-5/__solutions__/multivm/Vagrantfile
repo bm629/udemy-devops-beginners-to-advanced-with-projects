@@ -1,0 +1,50 @@
+Vagrant.configure("2") do |config|
+    
+    # define db
+    config.vm.define "db" do |db|
+        # Image
+        db.vm.box = "ubuntu/jammy64"
+        
+        # Network Config
+        db.vm.hostname = "db"
+        db.vm.network "private_network", ip: "192.168.56.100"
+        db.vm.network "public_network"
+
+        # Provider Configuration
+        db.vm.provider "virtualbox" do |vb|
+            vb.memory = "2048"
+            vb.cpus = "1"
+            vb.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
+        end
+
+        # Provisioning
+        db.vm.provision "shell", inline: <<-SHELL
+            apt-get update        
+            apt-get install -y mysql-server
+        SHELL
+    end
+
+    # define web
+    config.vm.define "web" do |web|
+        # Image
+        web.vm.box = "ubuntu/jammy64"
+        
+        # Network Config
+        web.vm.hostname = "web"
+        web.vm.network "private_network", ip: "192.168.56.101"
+        web.vm.network "public_network"
+
+        # Provider Configuration
+        web.vm.provider "virtualbox" do |vb|
+            vb.memory = "2048"
+            vb.cpus = "1"
+            vb.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
+        end
+
+        # Provisioning
+        web.vm.provision "shell", inline: <<-SHELL
+            apt-get update
+            apt-get install -y apache2
+        SHELL
+    end
+end
